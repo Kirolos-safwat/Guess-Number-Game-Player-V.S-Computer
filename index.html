@@ -72,6 +72,11 @@
                 </table>
             </div>
             <div id="gameMessage" style="font-weight: bold; margin-top: 10px;"></div>
+
+            <!-- زر reset -->
+            <div style="text-align:center; margin-top:10px;">
+                <button class="btn" onclick="resetGame()">Reset</button>
+            </div>
         </div>
     </div>
 
@@ -84,11 +89,8 @@
         let attempt = 0;
         let lastComputerGuess = null;
         let lastComputerFeedback = null;
-        
-        // متغير جديد لتتبع ما إذا كان الرقم السري قد تم تعيينه
         let isSecretSet = false;
 
-        // smart function 👇
         function smartComputerGuess(previousGuess, previousFeedback, candidates) {
           if (!previousGuess) {
             const index = Math.floor(Math.random() * candidates.length);
@@ -99,7 +101,7 @@
             return candidates[Math.floor(Math.random() * candidates.length)];
           }
           const nextGuess = filtered[Math.floor(Math.random() * filtered.length)];
-          probilities = filtered; // تحديث الاحتمالات
+          probilities = filtered;
           return nextGuess;
         }
 
@@ -147,50 +149,36 @@
           const input = document.querySelector(".input-for-secret");
           const button = document.querySelector(".btn-for-secret");
           
-          if (!outingSecrtNum()) { // التحقق من الإدخال قبل التعيين
-            return;
-          }
-
+          if (!outingSecrtNum()) {return;}
           button.disabled = true;
           playerSecretNum = input.value;
           confirmedSecret = playerSecretNum;
-          isSecretSet = true; // تعيين الرقم السري تم
-          console.log("Player secret assigned:", confirmedSecret);
+          isSecretSet = true;
         }
 
         function assignPlayerGuess() {
           const guessInput = document.querySelector(".input-for-guess");
           playerGuessNum = guessInput.value;
-          
-          // **الشرط الجديد: لا يمكن إدخال أقل من 3 أرقام**
           if (playerGuessNum.length < 3 || !/^\d{3}$/.test(playerGuessNum)) {
             alert("Your guess must be a 3-digit number!");
-            playerGuessNum = ""; // مسح القيمة لضمان عدم استخدامها
+            playerGuessNum = "";
             return false;
           }
           return true;
         }
 
         function countMatchingDigits() {
-          
-          // **الشرط الجديد: لا يمكن أن يبدأ في التخمين بدون تعيين رقم سري**
           if (!isSecretSet) {
             alert("Please set your secret number first!");
             return; 
           }
 
-          if (!assignPlayerGuess()) { // التأكد من أن التخمين صالح (3 أرقام)
-              return;
-          }
+          if (!assignPlayerGuess()) {return;}
 
           attempt++;
           let playerFeedback = getFeedback(playerGuessNum, computerSecretNum);
-
-          // تخمين الكمبيوتر الذكي
           computerGuessNum = smartComputerGuess(lastComputerGuess, lastComputerFeedback, probilities);
           let computerFeedback = getFeedback(computerGuessNum, confirmedSecret);
-
-          // حفظ آخر محاولة
           lastComputerGuess = computerGuessNum;
           lastComputerFeedback = computerFeedback;
 
@@ -203,7 +191,6 @@
           `;
           table.appendChild(row);
 
-          // عرض النتيجة إذا حد كسب
           const msg = document.getElementById("gameMessage");
           msg.style.padding = "5px";
           if (playerGuessNum == computerSecretNum) {
@@ -215,9 +202,30 @@
           } else {
             msg.innerHTML = "";
           }
-          
-          // مسح خانة التخمين بعد الإرسال
+
           document.querySelector(".input-for-guess").value = "";
+        }
+
+        // دالة Reset
+        function resetGame() {
+          playerSecretNum = 0;
+          computerSecretNum = 0;
+          playerGuessNum = 0;
+          computerGuessNum = 0;
+          probilities = [];
+          attempt = 0;
+          lastComputerGuess = null;
+          lastComputerFeedback = null;
+          isSecretSet = false;
+          confirmedSecret = "";
+          probilitiesFunc();
+
+          document.querySelector(".input-for-secret").value = "";
+          document.querySelector(".input-for-guess").value = "";
+          document.querySelector(".btn-for-secret").disabled = false;
+          document.querySelector(".secrt-num-out").innerHTML = "";
+          document.getElementById("resultsLog").innerHTML = "";
+          document.getElementById("gameMessage").innerHTML = "";
         }
     </script>
 </body>
